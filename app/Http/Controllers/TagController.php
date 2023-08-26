@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TagResource;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 
-class TagController extends Controller
+class TagController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -15,6 +16,8 @@ class TagController extends Controller
     public function index()
     {
         //
+        $tags = TagResource::collection(Tag::get());
+        return $this->successResponse($tags);
     }
 
     /**
@@ -26,6 +29,10 @@ class TagController extends Controller
     public function store(Request $request)
     {
         //
+        $tag = new Tag();
+        $tag->name = $request->name;
+        
+        return (new TagResource($tag))->store($request);
     }
 
     /**
@@ -37,6 +44,10 @@ class TagController extends Controller
     public function show(Tag $tag)
     {
         //
+        if($tag){
+            return $this->successResponse(new TagResource($tag));
+        }
+        return $this->errorResponse('The tag is not found' , 404);
     }
 
     /**
@@ -49,6 +60,13 @@ class TagController extends Controller
     public function update(Request $request, Tag $tag)
     {
         //
+        if($tag){
+            $tag = new Tag();
+            $tag->name = $request->name;
+            $tag->save();
+            return $this->successResponse(new TagResource($tag), 'The tag was updated succesfully' , 201);
+        }
+        return $this->errorResponse('The tag is not found' , 404);
     }
 
     /**
@@ -60,5 +78,10 @@ class TagController extends Controller
     public function destroy(Tag $tag)
     {
         //
+        if($tag){
+            return $this->successResponse(null , 'The tag was deleted successfuly', 200);
+        }
+        return $this->errorResponse('The tag is not found' , 404);
     }
+    
 }

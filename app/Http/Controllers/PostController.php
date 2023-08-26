@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
-use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\PostRequest;
 use App\Http\Resources\PostResourse;
@@ -21,8 +20,8 @@ class PostController extends ApiController
     public function index()
     {
         //
-        $posts = Post::all();
-        return $this->successResponse('success' , '' ,$posts);
+        $posts =  PostResourse::collection(Post::get());;
+        return $this->successResponse($posts);
         
     }
 
@@ -36,8 +35,8 @@ class PostController extends ApiController
     {
         //
         $categoryId = Category::where('name' , $request->category)->findorFail()->id;
-
         $tagId = Tag::where('name' , $request->tag)->findOrFail()->id;
+
         $post = new Post();
         $post->title = $request->title;
         $post->content =$request->content;
@@ -61,7 +60,7 @@ class PostController extends ApiController
     {
         //
         if($post) {
-            return $this->successResponse(new PostResourse($post), '', 200);
+            return $this->successResponse(new PostResourse($post));
         }
         return $this->errorResponse('The post is not found', 404);
     }
@@ -99,7 +98,7 @@ class PostController extends ApiController
         //
         if($post){
             $post->delete();
-            return $this->successResponse(null , 'The post was deleted successfuly' , 201);
+            return $this->successResponse(null , 'The post was deleted successfuly' , 200);
         }
         return $this->errorResponse('The post is not found' , 404);
     }

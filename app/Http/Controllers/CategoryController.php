@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CategoryRequest;
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
-class CategoryController extends Controller
+class CategoryController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -15,6 +17,8 @@ class CategoryController extends Controller
     public function index()
     {
         //
+        $categories = CategoryResource::collection(Category::get());
+        return $this->successResponse($categories);
     }
 
     /**
@@ -26,6 +30,10 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         //
+        $category = new Category();
+        $category->name = $request->name;
+        
+        return (new CategoryResource($category))->store($request);
     }
 
     /**
@@ -37,6 +45,10 @@ class CategoryController extends Controller
     public function show(Category $category)
     {
         //
+        if($category) {
+            return $this->successResponse(new CategoryResource($category));
+        }
+        return $this->errorResponse('The category is not found', 404);
     }
 
     /**
@@ -49,6 +61,15 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         //
+        if($category) {
+            $category = new Category();
+            $category->name = $request->name;
+
+            $category->save();
+            return $this->successResponse(new CategoryResource($category), 'The category updated successfuly', 201);
+        }
+        return $this->errorResponse('The category is not found', 404);
+
     }
 
     /**
@@ -60,5 +81,10 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         //
+        if($category){
+            $category->delete();
+            return $this->successResponse(null , 'The category was deleted successfuly' , 200);
+        }
+        return $this->errorResponse('The category is not found' , 404);
     }
 }
