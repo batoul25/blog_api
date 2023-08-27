@@ -34,12 +34,16 @@ class PostController extends ApiController
     public function store(PostRequest $request)
     {
         //
+      
         $categoryId = Category::where('name' , $request->category)->findorFail()->id;
         $tagId = Tag::where('name' , $request->tag)->findOrFail()->id;
 
         $post = new Post();
         $post->title = $request->title;
         $post->content =$request->content;
+        if ( $request->hasFile('photos') ) {
+            $this->storePostPhotos($request , $post->id);
+        }
         $post->categories()->attach([$categoryId]);
         $post->tags()->attach([$tagId]);
 

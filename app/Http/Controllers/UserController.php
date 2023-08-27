@@ -20,11 +20,13 @@ class UserController extends ApiController
      */
 
      public function login(){
-        
+
      }
     public function index()
     {
         //
+        $users = User::query()->latest()->paginate(10);
+
         $user = User::all();
         return $this->successResponse($user);
     }
