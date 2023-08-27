@@ -17,10 +17,18 @@ class PostController extends ApiController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(PostRequest $request)
     {
         //
-        $posts =  PostResourse::collection(Post::get());;
+        //to search posts based on their title
+      
+
+        $search = $request->search;
+        $posts = Post::query()
+        ->where('title' , 'LIKE' , '%' , $search , '%')->get()
+        ->orderBy('id' , 'desc')
+        ->paginate(5);
+
         return $this->successResponse($posts);
         
     }
@@ -106,4 +114,6 @@ class PostController extends ApiController
         }
         return $this->errorResponse('The post is not found' , 404);
     }
+
+
 }
