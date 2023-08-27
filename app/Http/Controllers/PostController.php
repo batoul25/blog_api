@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\Auth;
 
 class PostController extends ApiController
 {
+    private $request;
+    public function __construct()
+    {
+        $this->middleware('author', ['only' => 'update' , 'destroy']);
+     
+    }
     /**
      * Display a listing of the resource.
      *
@@ -49,6 +56,7 @@ class PostController extends ApiController
         $post = new Post();
         $post->title = $request->title;
         $post->content =$request->content;
+        $post->slug = $request->slug;
         $post->user_id = Auth::user()->id;
         $post->category_id = $request->category_id;
         if ( $request->hasFile('photos') ) {
@@ -92,6 +100,7 @@ class PostController extends ApiController
             $post = new Post();
             $post->title = $request->title;
             $post->content =$request->content;
+            $post->slug = $request->slug;
             $post->user_id = Auth::user()->id;
             $post->category_id = $request->category_id;
             $post->save();
