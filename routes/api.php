@@ -29,7 +29,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
 });
-Route::post('image',[ImageController::class, 'Store']);
+
+Route::resource('users', 'User\UserController', ['except'=>['create','update','edit']]);
+Route::resource('login', 'User\UserLoginController',['only'=>['store']]);
 
 
 

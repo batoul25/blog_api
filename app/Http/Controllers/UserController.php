@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Validator;
@@ -19,14 +20,10 @@ class UserController extends ApiController
      * @return \Illuminate\Http\Response
      */
 
-     public function login(){
-
-     }
+  
     public function index()
     {
         //
-        $users = User::query()->latest()->paginate(10);
-
         $user = User::all();
         return $this->successResponse($user);
     }
@@ -40,6 +37,18 @@ class UserController extends ApiController
     public function store(Request $request)
     {
         //
+        $validator = $this->validateUser();
+        if($validator->fails()){
+            return $this->errorResponse($validator->messages(), 422);
+        }
+
+        $user = User::create([
+            'name' => $request->get('name'),
+            'email' => $request->get('email'),
+            'password' => \Illuminate\Support\Facades\Hash::make($request->get('password')),
+        ]);
+
+        return $this->successResponse($user,'User Created', 201);
        
     }
 
@@ -53,6 +62,10 @@ class UserController extends ApiController
     {
         //
         $user = User::find($id);
+        if($user){
+            return $this->successResponse($user);
+         }
+         return $this->errorResponse('The user is not found' , 404);
     }
 
     /**
@@ -65,12 +78,6 @@ class UserController extends ApiController
     public function update(Request $request, $id)
     {
         //
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.$id,
-            'password' => 'same:confirm-password',
-            'roles' => 'required'
-        ]);
     
         $input = $request->all();
         if(!empty($input['password'])){ 
@@ -84,6 +91,8 @@ class UserController extends ApiController
         \Illuminate\Support\Facades\DB::table('model_has_roles')->where('model_id',$id)->delete();
     
         $user->assignRole($request->input('roles'));
+
+        return $this->successResponse(new UserResource($user) , 'User Updated', 201);
     
     }
 
@@ -96,6 +105,11 @@ class UserController extends ApiController
     public function destroy($id)
     {
         //
-        User::find($id)->delete();
+      $user = User::find($id);
+        if($user){
+            $user->delete();
+            return $this->successResponse(null, 'User Deleted',200);  
+        } 
+        return $this->errorResponse('The user is not found' , 404);
     }
 }

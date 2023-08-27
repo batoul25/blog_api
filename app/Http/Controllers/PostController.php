@@ -43,16 +43,17 @@ class PostController extends ApiController
     {
         //
       
-        $categoryId = Category::where('name' , $request->category)->findorFail()->id;
+    
         $tagId = Tag::where('name' , $request->tag)->findOrFail()->id;
 
         $post = new Post();
         $post->title = $request->title;
         $post->content =$request->content;
+        $post->user_id = Auth::user()->id;
+        $post->category_id = $request->category_id;
         if ( $request->hasFile('photos') ) {
             $this->storePostPhotos($request , $post->id);
         }
-        $post->categories()->attach([$categoryId]);
         $post->tags()->attach([$tagId]);
 
         
