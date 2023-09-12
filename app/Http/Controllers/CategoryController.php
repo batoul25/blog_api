@@ -27,7 +27,7 @@ class CategoryController extends ApiController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
         //
         $category = new Category();
@@ -58,7 +58,7 @@ class CategoryController extends ApiController
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(CategoryResource $request, Category $category)
     {
         //
         if($category) {

@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ImageRequest;
 use App\Http\Resources\ImageResource;
 use App\Models\Image;
-use Illuminate\Http\Request;
+use App\Traits\StoreImageTarit;
+
 
 use Illuminate\Support\Facades\Storage;
 
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ImageController extends ApiController
 {
+    use StoreImageTarit;
     /**
      * Display a listing of the resource.
      *
@@ -24,55 +26,31 @@ class ImageController extends ApiController
         //
         $images =  ImageResource::collection(Image::get());;
         return $this->successResponse($images);
-        
+
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\ImageRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(ImageRequest $request)
     {
         //
-        if(!$request->hasFile('fileName')) {
-            return $this->errorResponse('upload_file_not_found', 400);
-        }
-    
-        $allowedfileExtension=['pdf','jpg','png'];
-        $files = $request->file('fileName'); 
-        $errors = [];
-    
-        foreach ($files as $file) {      
-    
-            $extension = $file->getClientOriginalExtension();
-    
-            $check = in_array($extension,$allowedfileExtension);
-    
-            if($check) {
-                foreach($request->fileName as $mediaFiles) {
-    
-                    $path = $mediaFiles->store('public/images');
-                    $name = $mediaFiles->getClientOriginalName();
-         
-                    //store image file into directory and db
-                    $save = new Image();
-                    $save->filename = $name;
-                    $save->path = $path;
-                    $save->post_id = $request->post_id;
-                    $save->save();
-                    return $this->successResponse(new ImageResource($save) , 'Image Uploded Successfuly' , 200);
-    
-                }
-            }
-        }
-                return $this->errorResponse('invalid_file_format', 422);
-       
-            
-       
-        }
-    
+        $images = $request->file('images');
+        $path = 'public/images'; // Specify the directory where you want to store the images
+
+        $storedImages = $this->storeImages($request,$images, $path);
+
+        // Process the stored images as needed
+        return $this->successResponse(new ImageResource($storedImages) , 'Image Uploded Successfuly' , 200);
+
+    }
+
+
+
+
     /**
      * Display the specified resource.
      *
@@ -92,23 +70,21 @@ class ImageController extends ApiController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\ImageRequest   $request
      * @param  \App\Models\Image  $image
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Image $image)
+    public function update(ImageRequest $request, Image $image)
     {
         //
-    
+
         if($image) {
             $oldImage= $image->fileName;
-            $newImage = $request->fileName;
-            $name = time().'.'.$newImage->getClientOriginalExtension();
-            $path =$newImage->store('public/images');
-            $newImage->fileName =$name ;
-            $newImage->path = $path;
-            $newImage->post_id = $request->post_id;
-            $newImage->save();
+
+            $name = time().'.'.$request->fileName->getClientOriginalExtension();
+            $path ='public/images';
+            $newImage = $this->verifyAndStoreImage($request , $name , $path);
+            //delete the old photo 
             Storage::delete('public/images/' . $oldImage);
             return $this->successResponse(new ImageResource($newImage), 'The image was updated succsfully', 201);
         }
@@ -132,6 +108,6 @@ class ImageController extends ApiController
         return $this->errorResponse('The image is not found' , 404);
     }
 }
- 
+
 
 
