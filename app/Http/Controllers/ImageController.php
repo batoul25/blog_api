@@ -10,8 +10,7 @@ use App\Traits\StoreImageTarit;
 
 use Illuminate\Support\Facades\Storage;
 
-
-
+use function App\Helpers\PostImagePath;
 
 class ImageController extends ApiController
 {
@@ -38,8 +37,8 @@ class ImageController extends ApiController
     public function store(ImageRequest $request)
     {
         //
-        $images = $request->file('images');
-        $path = 'public/images'; // Specify the directory where you want to store the images
+        $images = $request->file('filename');
+        $path = PostImagePath($images); // Specify the directory where you want to store the images
 
         $storedImages = $this->storeImages($request,$images, $path);
 
@@ -82,9 +81,9 @@ class ImageController extends ApiController
             $oldImage= $image->fileName;
 
             $name = time().'.'.$request->fileName->getClientOriginalExtension();
-            $path ='public/images';
+            $path =PostImagePath($name);
             $newImage = $this->verifyAndStoreImage($request , $name , $path);
-            //delete the old photo 
+            //delete the old photo
             Storage::delete('public/images/' . $oldImage);
             return $this->successResponse(new ImageResource($newImage), 'The image was updated succsfully', 201);
         }

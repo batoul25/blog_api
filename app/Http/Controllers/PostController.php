@@ -11,13 +11,15 @@ use App\Http\Requests\PostRequest;
 use App\Http\Resources\PostResourse;
 use Illuminate\Support\Facades\Auth;
 
+use function App\Helpers\generateSlug;
+
 class PostController extends ApiController
 {
-    private $request;
+
     public function __construct()
     {
         $this->middleware('author', ['only' => 'update' , 'destroy']);
-     
+
     }
     /**
      * Display a listing of the resource.
@@ -28,7 +30,7 @@ class PostController extends ApiController
     {
         //
         //to search posts based on their title
-      
+
 
         $search = $request->search;
         $posts = Post::query()
@@ -37,7 +39,7 @@ class PostController extends ApiController
         ->paginate(5);
 
         return $this->successResponse($posts);
-        
+
     }
 
     /**
@@ -49,14 +51,14 @@ class PostController extends ApiController
     public function store(PostRequest $request)
     {
         //
-      
-    
+
+
         $tagId = Tag::where('name' , $request->tag)->findOrFail()->id;
 
         $post = new Post();
         $post->title = $request->title;
         $post->content =$request->content;
-        $post->slug = $request->slug;
+        $post->slug =  generateSlug($request->title);
         $post->user_id = Auth::user()->id;
         $post->category_id = $request->category_id;
         if ( $request->hasFile('photos') ) {
@@ -64,10 +66,10 @@ class PostController extends ApiController
         }
         $post->tags()->attach([$tagId]);
 
-        
-       
+
+
          return (new PostResourse($post))->store($request);
-        
+
 
     }
 
@@ -100,7 +102,7 @@ class PostController extends ApiController
             $post = new Post();
             $post->title = $request->title;
             $post->content =$request->content;
-            $post->slug = $request->slug;
+            $post->slug =  generateSlug($request->title);
             $post->user_id = Auth::user()->id;
             $post->category_id = $request->category_id;
             $post->save();
