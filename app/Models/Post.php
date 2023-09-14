@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Post extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = ['user_id' , 'category_id' , 'title' , 'content' , 'slug'];
     public function categories(){
         return $this->belongsTo(Category::class , 'category_id' , 'id');
@@ -27,5 +27,10 @@ class Post extends Model
 
     public function tags(){
         return $this->belongsToMany(Tag::class ,'post_tag' ,'post_id' , 'tag_id');
+    }
+
+    //Get all the post's comments (one to many polymorphic relation)
+    public function comments(){
+        return $this->morphMany(Comment::class , 'commentable');
     }
 }

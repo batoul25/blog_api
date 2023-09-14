@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ImageRequest;
 use App\Http\Resources\ImageResource;
 use App\Models\Image;
-use App\Traits\StoreImageTarit;
+use App\Traits\StoreImageTrait;
+
 
 
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +15,7 @@ use function App\Helpers\PostImagePath;
 
 class ImageController extends ApiController
 {
-    use StoreImageTarit;
+   use StoreImageTrait;
     /**
      * Display a listing of the resource.
      *

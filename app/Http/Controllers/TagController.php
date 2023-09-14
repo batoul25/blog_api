@@ -31,7 +31,7 @@ class TagController extends ApiController
         //
         $tag = new Tag();
         $tag->name = $request->name;
-        
+
         return (new TagResource($tag))->store($request);
     }
 
@@ -79,9 +79,10 @@ class TagController extends ApiController
     {
         //
         if($tag){
+            
             return $this->successResponse(null , 'The tag was deleted successfuly', 200);
         }
         return $this->errorResponse('The tag is not found' , 404);
     }
-    
+
 }

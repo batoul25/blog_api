@@ -6,10 +6,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\User\UserLoginController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\VideoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +32,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('register', 'register');
     Route::post('logout', 'logout');
     Route::post('refresh', 'refresh');
-  
+
 });
 
 //categories routes
@@ -57,8 +59,22 @@ Route::post('/tags/{tag}' , [ImageController::class , 'destroy'])->middleware('r
 //users routes
 Route::resource('users', UserController::class, ['except'=>['create','edit']]);
 
+
+//grouping routes with the middleware author
+Route::group(['prefix' => 'author'] , function(){
+
 //post routes
-Route::apiResource('/posts' ,PostController::class)->middleware('author');
+Route::apiResource('/posts' ,PostController::class);
+
+//video routes
+Route::apiResource('/videos' , VideoController::class);
 
 
+})->middleware(['author'] ,['only'=>(['update' , 'destroy'])]);
+
+
+//comment routes
+/* There is a middleware in the constructor in the Image Controller to allow only
+    the owner of the comment to delete and update the comments */
+Route::apiResource('/comments',CommentController::class);
 });

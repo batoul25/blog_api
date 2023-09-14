@@ -6,7 +6,7 @@ use App\Models\Image;
 use Illuminate\Support\Str;
 
 
-trait StoreImageTarit{
+trait StoreImageTrait{
 public function verifyAndStoreImage( ImageRequest $request, $name = 'image', $path = 'unknown'){
     if($request->hasFile('fileName'))  {
 

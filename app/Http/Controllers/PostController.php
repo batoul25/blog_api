@@ -9,6 +9,7 @@ use App\Models\Tag;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\PostRequest;
 use App\Http\Resources\PostResourse;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
 
 use function App\Helpers\generateSlug;
@@ -79,11 +80,13 @@ class PostController extends ApiController
      * @param  \App\Models\Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function show(Post $post)
+    public function show($id)
     {
         //
+        $post = Post::with('comments')->find($id);
         if($post) {
-            return $this->successResponse(new PostResourse($post));
+            $comments = $post->comments;
+            return $this->successResponse([new PostResourse($post) , compact($comments)]);
         }
         return $this->errorResponse('The post is not found', 404);
     }
@@ -121,6 +124,7 @@ class PostController extends ApiController
     {
         //
         if($post){
+            $post->comments()->delete();
             $post->delete();
             return $this->successResponse(null , 'The post was deleted successfuly' , 200);
         }
