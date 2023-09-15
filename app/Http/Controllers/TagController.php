@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TagRequest;
 use App\Http\Resources\TagResource;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class TagController extends ApiController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TagRequest $request)
     {
         //
         $tag = new Tag();
@@ -57,11 +58,11 @@ class TagController extends ApiController
      * @param  \App\Models\Tag  $tag
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Tag $tag)
+    public function update(TagRequest $request, Tag $tag)
     {
         //
         if($tag){
-            $tag = new Tag();
+
             $tag->name = $request->name;
             $tag->save();
             return $this->successResponse(new TagResource($tag), 'The tag was updated succesfully' , 201);
@@ -79,7 +80,7 @@ class TagController extends ApiController
     {
         //
         if($tag){
-            
+            $tag->delete();
             return $this->successResponse(null , 'The tag was deleted successfuly', 200);
         }
         return $this->errorResponse('The tag is not found' , 404);

@@ -32,7 +32,7 @@ class CategoryController extends ApiController
         //
         $category = new Category();
         $category->name = $request->name;
-        
+
         return (new CategoryResource($category))->store($request);
     }
 
@@ -62,7 +62,7 @@ class CategoryController extends ApiController
     {
         //
         if($category) {
-            $category = new Category();
+
             $category->name = $request->name;
 
             $category->save();

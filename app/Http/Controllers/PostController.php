@@ -102,7 +102,7 @@ class PostController extends ApiController
     {
         //
         if($post) {
-            $post = new Post();
+
             $post->title = $request->title;
             $post->content =$request->content;
             $post->slug =  generateSlug($request->title);
